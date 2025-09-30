@@ -1,0 +1,3 @@
+[submodule "fastapi-realworld-example-app"]
+	path = fastapi-realworld-example-app
+	url = https://github.com/nsidnev/fastapi-realworld-example-app.git
