@@ -1,113 +1,127 @@
-Codebase Assistant (RAG Demo with Gemini)
+# 🧠 Codebase Assistant (RAG Demo with Gemini)
 
-This project is a Python-based AI assistant that uses Retrieval-Augmented Generation (RAG) to answer questions about any Python codebase.
+An intelligent **AI assistant** built in Python that uses **Retrieval-Augmented Generation (RAG)** to understand and answer natural language questions about any Python codebase.
 
-You can point it at a local repository (e..g., a FastAPI project), and it will "learn" the code. You can then ask it natural language questions like "How is user authentication handled?" or "Show me the Pydantic model for an Article."
+You can point it at a local repository (for example, a **FastAPI project**) — it will analyze and "learn" the code, allowing you to ask questions like:
 
-This assistant is built using:
+> “How is user authentication handled?”  
+> “Show me the Pydantic model for an Article.”  
 
-Google Gemini: For the powerful Large Language Model (LLM) and embedding generation.
+---
 
-LangChain: As the framework to "chain" all the RAG components together.
+## 🚀 Tech Stack
 
-FAISS: As a fast, local, in-memory vector database.
+- **Google Gemini** → For powerful Large Language Model (LLM) and embedding generation.  
+- **LangChain** → Framework to chain RAG components together.  
+- **FAISS** → Fast, local, in-memory vector database for similarity search.
 
-How It Works (The RAG Pipeline)
+---
 
-The assistant follows a classic RAG pattern:
+## ⚙️ How It Works (RAG Pipeline)
 
-Load: Scans your target repository and loads all .py files.
+The assistant follows a classic **Retrieval-Augmented Generation** pipeline:
 
-Split: Intelligently splits the code into smaller, context-aware chunks.
+1. **Load** → Scans your repository and loads all `.py` files.  
+2. **Split** → Intelligently splits code into smaller, context-aware chunks.  
+3. **Embed** → Converts each chunk into a vector using **Google’s `embedding-001`** model.  
+4. **Store** → Saves all vectors into a **local FAISS** vector database.  
+5. **Retrieve** → When you ask a question, it finds the top **5 most relevant** code chunks.  
+6. **Augment** → Adds these retrieved chunks to your original question as context.  
+7. **Generate** → Sends the augmented prompt to **Gemini**, which produces an accurate answer based on the provided context.
 
-Embed: Uses the Google embedding-001 model to convert each code chunk into a vector (a numerical representation).
+---
 
-Store: Stores all these vectors in a local FAISS vector database.
+## 🧩 Example Workflow
 
-Retrieve: When you ask a question, it embeds your question and uses FAISS to find the top 5 most similar code chunks from the database.
+1. You ask:  
+   > “How is database dependency injection handled?”
 
-Augment: It "augments" (adds) these 5 code chunks to your original question in a prompt.
+2. The assistant retrieves the top 5 related code snippets from your repository.
 
-Generate: It sends the complete prompt (question + code snippets) to the Gemini model, which generates an answer based only on the provided context.
+3. It combines your question + retrieved code snippets into a single prompt.
 
-Setup and Installation
+4. **Gemini** generates a precise, context-aware answer — **grounded only in your codebase**.
 
-1. Prerequisites
+---
 
-Python 3.9 or higher
+##  Setup and Installation
 
-Git
+###  Prerequisites
 
-2. Clone the Repository
+Make sure you have:
 
-git clone https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git
-cd YOUR_REPOSITORY
+- **Python 3.9+**
+- **Git**
+- A **Google Gemini API key**
 
+---
 
-3. Set Up a Virtual Environment
+###  Clone the Repository
 
-It's highly recommended to use a virtual environment.
+```
+git clone https://github.com/supreetbhat/codebase_assistant.git
+cd codebase_assistant
+```
+ 
+## ⚙️ Setup and Usage
 
-# For macOS/Linux
+### 🧱 Set Up a Virtual Environment
+It’s strongly recommended to use a virtual environment.
+
+**For macOS/Linux:**
+```bash
 python3 -m venv venv
 source venv/bin/activate
-
-# For Windows
+```
+**For Windows:** 
+```
 python -m venv venv
 .\venv\Scripts\activate
-
-
-4. Install Dependencies
-
-Install all required libraries from requirements.txt:
-
+```
+## Install Dependencies
+Install all required libraries from `requirements.txt`
+```
 pip install -r requirements.txt
-
-
-5. Set Up Your API Key
-
-You will need a Google Gemini API key.
-
-Get your key from Google AI Studio.
-
-This project uses a .env file to securely load your key. Create a .env file by copying the example:
-
+```
+## Set Up Your API Key
+You’ll need a Google Gemini API key.
+Get it from Google AI Studio.
+Then create a `.env` file:
+```
 cp .env.example .env
-
-
-Open the .env file and paste your API key:
-
+```
+Open `.env` and add your key:
+```
 GOOGLE_API_KEY="YOUR_API_KEY_HERE"
+```
+💡 Note: You must enable billing on your Google Cloud project to use the embedding API.
 
-
-You must also enable billing on your Google Cloud project to use the embedding API.
-
-How to Run
-
-Run the code_assistant.py script from your terminal, passing the file path to the codebase you want it to analyze as an argument.
-
+## 🚀 How to Run
+Run the assistant and pass your target codebase path as an argument:
+```
 python code_assistant.py /path/to/your/codebase
-
-
+```
 Example:
-
+```
 python code_assistant.py ../my-fastapi-project
+```
+The script will first index the codebase (this may take a minute).
+Once you see:
+```
+✅ Codebase Assistant is ready!
+```
+You can start asking natural language questions.
+Type `exit` to quit.
 
+## 💬 Example Questions to Ask
+“What does the `/api/users/login` endpoint do?”
 
-The script will first index the codebase (this may take a minute). Once you see the "✅ Codebase Assistant is ready!" message, you can start asking questions.
+“How do I create a new article?”
 
-Type exit to quit.
+“Show me the Pydantic model for a User.”
 
-Example Questions to Ask
+“How is database dependency injection handled?”
 
-"What does the /api/users/login endpoint do?"
+“What fields are required to create a new user?”
 
-"How do I create a new article?"
-
-"Show me the Pydantic model for a User."
-
-"How is database dependency injection handled?"
-
-"What fields are required to create a new user?"
-
-"Explain the logic for following another user."
+“Explain the logic for following another user.”
