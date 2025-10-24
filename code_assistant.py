@@ -1,5 +1,6 @@
 import os
 import argparse
+import time  # <-- 1. IMPORTED TIME
 from dotenv import load_dotenv
 
 # --- LangChain Imports ---
@@ -47,16 +48,33 @@ def create_vector_db(repo_path: str):
     print(f"Split documents into {len(splits)} code chunks.")
 
     # 3. Create embeddings using Google's model
-    # This requires your GOOGLE_API_KEY to be set
     try:
         embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
     except Exception as e:
         print(f"Error initializing embeddings. Is your GOOGLE_API_KEY set? Error: {e}")
         return None
 
-    # 4. Create and return the FAISS vector store
-    print("Creating vector store... This may take a moment.")
-    vectorstore = FAISS.from_documents(splits, embeddings)
+    # 4. Create and return the FAISS vector store **in batches**
+    print("Creating vector store in batches... This may take a moment.")
+    
+    vectorstore = None
+    batch_size = 100  # Process 100 docs at a time (Google's default limit)
+    
+    for i in range(0, len(splits), batch_size):
+        batch = splits[i:i + batch_size]
+        print(f"Processing batch {i // batch_size + 1}/{len(splits) // batch_size + 1}...")
+        
+        if vectorstore is None:
+            # Create the store with the first batch
+            vectorstore = FAISS.from_documents(batch, embeddings)
+        else:
+            # Add subsequent batches to the existing store
+            vectorstore.add_documents(batch)
+        
+        # Wait for a second to avoid hitting per-minute rate limits
+        print("Waiting 1 second to respect API rate limits...")
+        time.sleep(1)
+
     print("Vector store created successfully.")
     
     # We return a "retriever" which is an object that can search the database
@@ -73,7 +91,7 @@ def main(repo_path: str):
         return
 
     # --- Part 1: Indexing ---
-    repo_path = "/Users/supreetbhat/Github/codebase_assistant/fastapi_realworld"
+    # The 'repo_path' from the argument will be used.
     retriever = create_vector_db(repo_path)
     if retriever is None:
         return
@@ -81,7 +99,6 @@ def main(repo_path: str):
     # --- Part 2: Querying (The RAG Chain) ---
 
     # 1. Define the Prompt Template
-    # This tells the LLM how to behave.
     template = """
 You are an expert FastAPI developer assistant.
 Your job is to answer the user's question based *only* on the
@@ -99,7 +116,8 @@ If the context doesn't contain the answer, just say:
     prompt = ChatPromptTemplate.from_template(template)
 
     # 2. Initialize the Gemini LLM
-    llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0.1)
+    # 4. CORRECTED THE MODEL NAME
+    llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash-preview-09-2025", temperature=0.1)
 
     # 3. Helper function to format the retrieved docs
     def format_docs(docs):
@@ -110,18 +128,10 @@ If the context doesn't contain the answer, just say:
         )
 
     # 4. Build the RAG Chain
-    # This is the magic of LangChain. We "pipe" the steps together.
     rag_chain = (
-        # This part runs in parallel:
-        # 1. The user's `question` is passed through.
-        # 2. The `question` is also sent to the `retriever` to find code,
-        #    which is then formatted by `format_docs`.
         {"context": retriever | format_docs, "question": RunnablePassthrough()}
-        # The output (context and question) is fed into our prompt
         | prompt
-        # The formatted prompt is fed into the LLM
         | llm
-        # The LLM's output is parsed into a simple string
         | StrOutputParser()
     )
 
