@@ -1,4 +1,4 @@
-# 🧠 Codebase Assistant (RAG Demo with Gemini)
+# 🧠 Codebase Assistant (RAG Demo with Gemini).
 
 An intelligent **AI assistant** built in Python that uses **Retrieval-Augmented Generation (RAG)** to understand and answer natural language questions about any Python codebase.
 
