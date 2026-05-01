@@ -1,3 +1,19 @@
+# Codebase Assistant & Analyzer
+*A suite of developer tools for semantic analysis and AI-driven codebase querying.*
+
+This repository houses two distinct tools designed to help developers understand and improve their codebases:
+
+### 1. Semantic Codebase Analyzer (Accessibility Scanner)
+A lightweight Python CLI tool (`a11y_scanner.py`) that parses raw HTML to detect missing WAI-ARIA attributes, missing `tabindex` on custom UI components, and unlabelled forms. 
+* **Usage:** `python a11y_scanner.py /path/to/html/folder`
+* **Tech Stack:** Python, BeautifulSoup, HTML Parsing.
+
+### 2. AI Codebase Assistant (RAG Pipeline)
+An intelligent AI assistant built with Google Gemini and LangChain that uses Retrieval-Augmented Generation (RAG) to understand and answer natural language questions about local Python architectures.
+* **Usage:** `python code_assistant.py /path/to/repo`
+* **Tech Stack:** Python, Google Gemini, LangChain, FAISS.
+
+
 # 🧠 Codebase Assistant (RAG Demo with Gemini).
 
 An intelligent **AI assistant** built in Python that uses **Retrieval-Augmented Generation (RAG)** to understand and answer natural language questions about any Python codebase.
